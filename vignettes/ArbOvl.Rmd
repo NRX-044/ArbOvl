@@ -1,0 +1,121 @@
+---
+title: "ArbOvl: computing pairwise and multiple genomic interval sets under various conditions and standards"
+author: "Angry Programming Nerd"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ArbOvl}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup,results = 'hide',message = FALSE}
+library(GenomicRanges)
+library(gplots)
+library(gtools)
+library(UpSetR)
+library(ggvenn)
+library(ArbOvl)
+
+
+
+```
+#Description
+
+ArbOvl is a simple wrapper which supports computing pairwise and multiple genomic interval sets intersection under various conditions and standards, the main output is a list containing two objects: the first one is a binary data frame representing intersection sizes in each combination, the second one is a list containing intersecting intervals of each combination. Users can use the binary data frame as input to visualize the result, both venn plot(up to 5 sets) and upset plot are supported. Users can also output the intersecting intervals into a bed-format data frame.
+
+#Introduction
+
+Finding intersection of genomic interval might be the most common scene when manipulating bed files. It can be a little bit more complicated when defining what is overlapping or intersecting. ArbOvl offers various options including minimum overlap bases for defining overlapping, minimum gap length to merge non-disjointing overlapping intervals,etc, which can compute intersection in a much more flexible way. Users can also change the definition of intersection  sizes(e.g. counting number of intersecting bases instead)
+
+```{r}
+## loading packages
+library(GenomicRanges)
+library(IRanges)
+library(gplots)
+library(gtools)
+library(UpSetR)
+library(ggvenn)
+library(ArbOvl)
+```
+
+#Loading bed file into GRanges object
+one can load bed files into GRanges objects either by file path or existed data frame
+
+```{r}
+file1 <- system.file('extdata','A_peak.bed',package = 'ArbOvl')
+gr1 <- bed2gr(file1)
+print(gr1)
+```
+
+#Loading multiple bed files and arrange them into a list
+essential step if you want to perform multiple genomic intervals sets comparison
+
+```{r}
+file2 <- system.file('extdata','B_peak.bed',package = 'ArbOvl')
+gr2 <- bed2gr(file2)
+file3 <- system.file('extdata','C_peak.bed',package = 'ArbOvl')
+gr3 <- bed2gr(file3)
+
+grlist <- list('A' = gr1,'B' = gr2, 'C' = gr3)
+```
+
+#Compute overlap in default manner
+`arbtr_ol` return a list containing two objects: the first one is a binary data frame which can be used as input for visualization; the other one is a list containing intersecting intervals of each combination
+
+```{r}
+res <- arbtr_ol(grlist)
+print(res[[1]])
+print(res[[2]])
+
+```
+
+## Compute overlap under various condition
+
+if one wants to keep intervals with at least n bases overlapping only, applying  a threshold to `minoverlap` in `arbtr_ol` would be the way
+
+```{r}
+res <- arbtr_ol(grlist,minoverlap = 3L)
+print(res[[1]])
+print(res[[2]])
+```
+
+if one wants to merge those intersecting intervals which are sufficiently close, apply another threshold to `min.gapwidth` in `arbtr_ol`
+
+```{r}
+res <- arbtr_ol(grlist,min.gapwidth = 3L)
+print(res[[1]])
+print(res[[2]])
+```
+
+# Visualize the results
+
+```{r}
+res <- arbtr_ol(grlist)
+
+# venn plot
+olm2venn(res[['oldf']])
+
+#changing method for visualizing venn plot
+olm2venn(res[['oldf']],method = 'ggvenn')
+
+#upset plot
+olm2upset(res[['oldf']])
+```
+
+# Ouput the intersecting intervals into bed-formatted data frame
+
+```{r}
+bed1 <- gr2df(res[['overlap.interval']][2])
+
+
+#concatenate multiple intervals into one data frame
+ttlbed <- gr2df(res[['overlap.interval']])
+```
+

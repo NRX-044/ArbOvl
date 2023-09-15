@@ -1,0 +1,29 @@
+Package: ArbOvl
+Title: compute pairwise or multiple bed files intersection interval under various conditions and standards
+Version: 1.0.0
+Authors@R: 
+    person(given = "Angry", family = "Nerd", middle = "Programming" , email = "nrxdsfa@gmail.com", role = c("aut", "cre"),
+           comment = c(github = "https://github.com/nrx-044"))
+Description: ArbOvl supports computing pairwise and multiple genomic interval sets intersection under various conditions and standards, the main output is a
+    list containing two objects: the first one is a binary data frame representing intersection sizes in each combination, the second one is a list
+    containing intersecting intervals of each combination. Users can use the binary data frame as input to visualize the result, both venn plot(up to 5
+    sets) and upset plot are supported. Users can also output the intersecting intervals into a bed-format data frame. 
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+biocViews:
+Imports: 
+    GenomicRanges,
+    ggvenn,
+    gplots,
+    gtools,
+    IRanges,
+    UpSetR
+VignetteBuilder: knitr
+License: MIT + file LICENSE
